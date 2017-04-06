@@ -20,6 +20,7 @@ public class PDFToImageConvertSubTh extends Thread {
     private String OutTessFileName;
     private Image img = null;
     private File ImageFile = null;
+    private BufferedWriter bw;
 
 
     public PDFToImageConvertSubTh(String OutFilename, String  OutTessFileName)
@@ -30,7 +31,7 @@ public class PDFToImageConvertSubTh extends Thread {
     @Override
     public void run() {
         long start = System.currentTimeMillis();
-        while (PDFToImageConvertMultiTh.currrent_page < PDFToImageConvertMultiTh.numPgs){
+        while (PDFToImageConvertMultiTh.currrent_page <= PDFToImageConvertMultiTh.numPgs){
             PDFPage page = PDFToImageConvertMultiTh.getPage();
             cur_page = page.getPageNumber();
 
@@ -50,9 +51,21 @@ public class PDFToImageConvertSubTh extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();}
         }
+        try {
+            bw = new BufferedWriter(new FileWriter(OutTessFileName));
+
+            for( String text : PDFToImageConvertMultiTh.stringlist )
+                bw.append(text);
+
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         long finish = System.currentTimeMillis();
         long time = finish - start;
         System.out.println(time);
+
     }
 
 //    private static synchronized void update_time()
@@ -64,14 +77,11 @@ public class PDFToImageConvertSubTh extends Thread {
     private synchronized void writeTessText(BufferedImage img)
     {
        try {
-           BufferedWriter bw = new BufferedWriter(new FileWriter(OutTessFileName));
            Tesseract tess = new Tesseract();
            tess.setLanguage("eng");
-           bw.append(tess.doOCR(img));
-           bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TesseractException e) {
+           String text = tess.doOCR(img);
+           PDFToImageConvertMultiTh.stringlist.add(cur_page - 1,text);
+        }  catch (TesseractException e) {
            e.printStackTrace();
        }
     }

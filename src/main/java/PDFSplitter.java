@@ -49,7 +49,7 @@ public class PDFSplitter {
             PdfReader reader = new PdfReader(inputFileName);
             int n = reader.getNumberOfPages();
 
-            n = 10;
+            //n = 10;
 
             int i = 1;
             while (i <= n) {

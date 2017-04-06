@@ -10,14 +10,14 @@ public class PDFReader {
 
     public static void main(String[] args) {
 
-        PDFSplitter P = new PDFSplitter(filename, dir);
+//        PDFSplitter P = new PDFSplitter(filename, dir);
 //        System.out.println("Splitter has done");
 //        long start = System.currentTimeMillis();
 //        PDFToImageConvert I = new PDFToImageConvert(filename,"images/");
 //        long finish = System.currentTimeMillis();
 //        System.out.println(finish - start);
 //        System.out.println("PDFToImageConvert has done");
-       PDFBookmarks B = new PDFBookmarks(filename,dir + "bookmarks.txt", P.getPages());
+//       PDFBookmarks B = new PDFBookmarks(filename,dir + "bookmarks.txt", P.getPages());
 //        System.out.println("Bookmark has done");
 //        TessFileSaver tess = new TessFileSaver(I.getImages(),dir + filename.replace(".pdf", ".txt"));
 //        System.out.println("TessFileSaver has done");
