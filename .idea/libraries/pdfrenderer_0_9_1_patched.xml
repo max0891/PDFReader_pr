@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="pdfrenderer-0.9.1-patched">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/pdfrenderer-0.9.1-patched.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
