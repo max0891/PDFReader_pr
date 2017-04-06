@@ -33,6 +33,12 @@ public class PDFToImageConvertMultiTh{
         this.ImagesOut = ImagesOut;
         try {
 
+            File textfolder = new File(OutTessFileName.substring(0,OutTessFileName.indexOf('/')));
+            textfolder.mkdir();
+            File imagefolder = new File(ImagesOut.substring(0,ImagesOut.indexOf('/')));
+            imagefolder.mkdir();
+
+
 
             File file = new File(InputFileName);
             RandomAccessFile raf = new RandomAccessFile(file, "r");

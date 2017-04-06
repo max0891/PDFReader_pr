@@ -2,6 +2,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.*;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,6 +56,8 @@ public class PDFSplitter {
             while (i <= n) {
                 String outFile = dir + inputFileName.substring(0, inputFileName.indexOf(".pdf"))
                         + "_" + String.format("%04d", i ) + ".pdf";
+                File f = new File(dir);
+                f.mkdir();
                 Document document = new Document(reader.getPageSizeWithRotation(1));
                 PdfCopy writer = new PdfCopy(document, new FileOutputStream(outFile));
                 document.open();
