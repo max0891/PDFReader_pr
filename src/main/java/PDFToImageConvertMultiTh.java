@@ -1,6 +1,8 @@
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import net.sourceforge.tess4j.Tesseract;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -38,28 +40,25 @@ public class PDFToImageConvertMultiTh{
             ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
             pdffile = new PDFFile(buf);
             numPgs = pdffile.getNumPages();
-            numPgs = 100;
-
-            stringlist = new ArrayList<String>(numPgs);
-
+            //numPgs = 100;
 
             PDFToImageConvertSubTh th1 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th2 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th3 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th4 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th5 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th6 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th7 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
-//            PDFToImageConvertSubTh th8 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th2 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th3 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th4 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th5 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th6 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th7 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
+            PDFToImageConvertSubTh th8 = new PDFToImageConvertSubTh(ImagesOut, OutTessFileName);
 
             th1.start();
-//            th2.start();
-//            th3.start();
-//            th4.start();
-//            th5.start();
-//            th6.start();
-//            th7.start();
-//            th8.start();
+            th2.start();
+            th3.start();
+            th4.start();
+            th5.start();
+            th6.start();
+            th7.start();
+            th8.start();
         }
         catch (FileNotFoundException e){}
         catch (IOException e){}

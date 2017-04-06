@@ -35,33 +35,32 @@ public class PDFToImageConvertSubTh extends Thread {
             PDFPage page = PDFToImageConvertMultiTh.getPage();
             cur_page = page.getPageNumber();
 
+
+            int width = 1200;
+            int height = 1400;
+
             Rectangle rect = new Rectangle(0, 0, (int) page.getBBox().getWidth(), (int) page.getBBox().getHeight());
 
-            img = page.getImage(rect.width, rect.height,
+            img = page.getImage(width, height,
                     rect,
                     null,
                     true,
                     true
             );
-            writeTessText((BufferedImage) img);
+
+            BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D bufImageGraphics = bufferedImage.createGraphics();
+            bufImageGraphics.drawImage(img, 0, 0, null);
+
+            writeTessText(bufferedImage);
             try {
                 ImageFile = new File(OutFilename  + String.valueOf(cur_page) + ".png");
-                ImageIO.write((BufferedImage) img, "png", ImageFile);
+//                ImageIO.write((BufferedImage) img, "png", ImageFile);
+                ImageIO.write(bufferedImage, "png", ImageFile);
                 Runtime.getRuntime().gc();
             } catch (IOException e) {
                 e.printStackTrace();}
         }
-        try {
-            bw = new BufferedWriter(new FileWriter(OutTessFileName));
-
-            for( String text : PDFToImageConvertMultiTh.stringlist )
-                bw.append(text);
-
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         long finish = System.currentTimeMillis();
         long time = finish - start;
         System.out.println(time);
@@ -77,11 +76,14 @@ public class PDFToImageConvertSubTh extends Thread {
     private synchronized void writeTessText(BufferedImage img)
     {
        try {
+           bw = new BufferedWriter(new FileWriter(OutTessFileName + cur_page + ".txt"));
            Tesseract tess = new Tesseract();
            tess.setLanguage("eng");
-           String text = tess.doOCR(img);
-           PDFToImageConvertMultiTh.stringlist.add(cur_page - 1,text);
+           bw.append(tess.doOCR(img));
+           bw.close();
         }  catch (TesseractException e) {
+           e.printStackTrace();
+       } catch (IOException e) {
            e.printStackTrace();
        }
     }
