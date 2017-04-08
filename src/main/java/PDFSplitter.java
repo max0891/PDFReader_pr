@@ -5,9 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class PDFSplitter {
@@ -49,15 +47,13 @@ public class PDFSplitter {
         try {
             PdfReader reader = new PdfReader(inputFileName);
             int n = reader.getNumberOfPages();
-
-            //n = 10;
-
             int i = 1;
             while (i <= n) {
                 String outFile = dir + inputFileName.substring(0, inputFileName.indexOf(".pdf"))
                         + "_" + String.format("%04d", i ) + ".pdf";
                 File f = new File(dir);
-                f.mkdir();
+                if(!f.exists())
+                    f.mkdir();
                 Document document = new Document(reader.getPageSizeWithRotation(1));
                 PdfCopy writer = new PdfCopy(document, new FileOutputStream(outFile));
                 document.open();
