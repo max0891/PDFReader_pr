@@ -76,13 +76,24 @@ public class PDFStreamConverter {
 
         for(int i = 0; i < bytes.length; ++i)
         {
-            //[a-zA-z0-9] '.' ','
-            if((bytes[i] >= 48 && bytes[i] <= 57) || (bytes[i] >= 65 && bytes[i] <= 90) || (bytes[i] >= 97 && bytes[i] <= 122) || (bytes[i] == 32)  || (bytes[i] == 46) || (bytes[i] == 44) || (bytes[i] == 10)) //not digit
+            //[a-zA-z0-9] '.' ',' '(' ')' ' '
+            if((bytes[i] >= 48 && bytes[i] <= 57) ||
+                    (bytes[i] >= 65 && bytes[i] <= 90) ||
+                    (bytes[i] >= 97 && bytes[i] <= 122) ||
+                    (bytes[i] == 32)  ||
+                    (bytes[i] == 46) ||
+                    (bytes[i] == 44) ||
+                    (bytes[i] == 10) ||
+                    (bytes[i] == 40) ||
+                    (bytes[i] == 41)) //not digit
             {
                 continue;
             }
-            else
+            else {
+                garbage.append((char)bytes[i]);
                 bytes[i] = 32;
+
+            }
         }
 
 //        String lines[] = new String(bytes).split("\n");
