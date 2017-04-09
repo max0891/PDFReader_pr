@@ -90,7 +90,7 @@ public class PDFStreamConverter {
                 continue;
             }
             else {
-                garbage.append((char)bytes[i]);
+                garbage.append(String.valueOf((char)bytes[i]));
                 bytes[i] = 32;
 
             }
@@ -121,7 +121,12 @@ public class PDFStreamConverter {
         String words[] = new String(bytes).split(" ");
         for(String s : words)
         {
-            String tmp = s.replaceAll("\\s+", " ");
+            String tmp = s.replace("       "," ").
+                    replace("      ", " ").
+                    replace("     ", " ").
+                    replace("    ", " ").
+                    replace("   ", " ").
+                    replace("  ", " ");
             if(s.length() == 1 && s != "a") {
                 garbage.append(s);
                 tmp = "";

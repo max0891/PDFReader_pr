@@ -46,7 +46,6 @@ public class PDFReader {
             pdffile = new PDFFile(buf);
             final int CountOfPages = 100;//pdffile.getNumPages();
 
-
             //garbage writer
             File outtext = new File(OutGarbageText);
             garbagewriter = new BufferedWriter(new FileWriter(outtext));

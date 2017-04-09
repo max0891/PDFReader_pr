@@ -11,7 +11,6 @@ public class MongoTest {
 
         try {
             new GridFS(db, "documents").createFile(new FileInputStream(file), file.getName()).save();
-            System.out.println("\n" +file.getName()+"\n");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
