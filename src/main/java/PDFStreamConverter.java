@@ -18,6 +18,7 @@ public class PDFStreamConverter {
 
     public PDFStreamConverter(PDFPage page) {
         int CurrentPageNumber = page.getPageNumber();
+
         int width = 2400;
         int height = 2800;
 
@@ -60,7 +61,7 @@ public class PDFStreamConverter {
             String text = tess.doOCR(img);
             bw.append(formatText(text));
             bw.close();
-            //new MongoTest(outtext);
+            new MongoTest(outtext);
         } catch (TesseractException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -84,11 +85,10 @@ public class PDFStreamConverter {
                 bytes[i] = 32;
         }
 
-        //result.append(new String(bytes));
 //        String lines[] = new String(bytes).split("\n");
 //        for(String s : lines)
 //        {
-//            String tmp = s;
+//            String tmp = s.replaceAll("\\s+", " ");
 //            int spacecount = 0;
 //            int len = s.length();
 //            for(char c : s.toCharArray())
@@ -98,7 +98,7 @@ public class PDFStreamConverter {
 //
 //            if(len != 0) {
 //                float percent = ((float) spacecount / (float) len * 100);
-//                if (percent > 30) {
+//                if (percent > 40) {
 //                    garbage.append(tmp + "\n");
 //                    tmp = "";
 //                }
@@ -110,8 +110,8 @@ public class PDFStreamConverter {
         String words[] = new String(bytes).split(" ");
         for(String s : words)
         {
-            String tmp = s;
-            if(s.length() == 1) {
+            String tmp = s.replaceAll("\\s+", " ");
+            if(s.length() == 1 && s != "a") {
                 garbage.append(s);
                 tmp = "";
             }

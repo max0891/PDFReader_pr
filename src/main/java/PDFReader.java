@@ -16,6 +16,7 @@ public class PDFReader {
     public static String OutPDFFilePath = InputPDFFilename;
     public static String OutTessFileName = "texts/Acura Integra Service Manual 1997_";
     public static String OutImageName = "images/image_";
+    public static String OutGarbageText = "texts/garbage.txt";
     public static final int THREADSNUM = 8;
 
     public static BufferedWriter garbagewriter = null;
@@ -36,30 +37,23 @@ public class PDFReader {
             PDFBookmarks bookmarks = new PDFBookmarks(InputPDFFilename,OutPDFFilePath.replace(".pdf", "/Bookmarks.txt") , splitter.getPages());
 
             PDFFile pdffile;
-            int CountOfPages = 0;
+            //int CountOfPages = 0;
             RandomAccessFile raf = new RandomAccessFile(InputPDFFilename, "r");
 
             FileChannel channel = raf.getChannel();
             ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
 
             pdffile = new PDFFile(buf);
-            CountOfPages = pdffile.getNumPages();
-            CountOfPages = 100;
+            final int CountOfPages = 100;//pdffile.getNumPages();
 
 
             //garbage writer
-            File outtext = new File("texts/garbage.txt");
+            File outtext = new File(OutGarbageText);
             garbagewriter = new BufferedWriter(new FileWriter(outtext));
 
-
-
-            ArrayList<PDFPage> list = new ArrayList<PDFPage>(CountOfPages);
-            IntStream.range(0,CountOfPages).forEach((i) -> list.add(i,pdffile.getPage(i + 1))); //pages start from 1
-//            list.stream().parallel().forEach((page) -> new PDFStreamConverter(page));
-//
             ForkJoinPool forkJoinPool = new ForkJoinPool(THREADSNUM);
             forkJoinPool.submit(() ->
-                    list.stream().parallel().forEach((page) -> new PDFStreamConverter(page))
+                    IntStream.range(0,CountOfPages).parallel().forEach((i) -> new PDFStreamConverter(pdffile.getPage(i + 1)))//pages start from 1
             ).get();
 
             garbagewriter.close();
