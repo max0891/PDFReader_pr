@@ -24,7 +24,7 @@ public class PDFStreamConverter {
 
         Rectangle rect = new Rectangle(0, 0, (int) page.getBBox().getWidth(), (int) page.getBBox().getHeight());
 
-        Image PDFImage = page.getImage(width, height,
+        Image pdfimage = page.getImage(width, height,
                 rect,
                 null,
                 true,
@@ -33,12 +33,16 @@ public class PDFStreamConverter {
 
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D bufImageGraphics = bufferedImage.createGraphics();
-        bufImageGraphics.drawImage(PDFImage, 0, 0, null);
+        bufImageGraphics.drawImage(pdfimage, 0, 0, null);
 
         SaveIamge(bufferedImage, CurrentPageNumber);
         writeTessText(bufferedImage, CurrentPageNumber);
 
-        //Runtime.getRuntime().gc();
+        bufferedImage = null;
+        bufImageGraphics = null;
+        pdfimage = null;
+
+        Runtime.getRuntime().gc();
 
     }
 
@@ -59,8 +63,11 @@ public class PDFStreamConverter {
             Tesseract tess = new Tesseract();
             tess.setLanguage("eng");
             String text = tess.doOCR(img);
-            bw.append(formatText(text));
+            bw.append(formatText(text, filename));
             bw.close();
+
+            tess = null;
+
             new MongoTest(outtext);
         } catch (TesseractException e) {
             e.printStackTrace();
@@ -69,9 +76,11 @@ public class PDFStreamConverter {
         }
     }
 
-    private String formatText(String text) {
+    private String formatText(String text, String filename) {
+
         StringBuilder result = new StringBuilder();
         StringBuilder garbage = new StringBuilder();
+        garbage.append("\n" + filename + "\n");
         byte bytes[] = text.getBytes();
 
         for(int i = 0; i < bytes.length; ++i)
@@ -90,51 +99,54 @@ public class PDFStreamConverter {
                 continue;
             }
             else {
-                garbage.append(String.valueOf((char)bytes[i]));
-                bytes[i] = 32;
+                garbage.append((char)bytes[i]);
+                bytes[i] = (byte)32;
 
             }
         }
 
-//        String lines[] = new String(bytes).split("\n");
-//        for(String s : lines)
+        String ClearSpecial = new String(bytes).replaceAll(" +", " ");
+
+        String lines[] = ClearSpecial.split("\n");
+        for(String s : lines)
+        {
+            String tmp = s.replaceAll("\\s+", " ");
+            int spacecount = 0;
+            int len = s.length();
+
+
+            if(len > 1) {
+                for(char c : s.toCharArray())
+                {
+                    if(c == ' ')spacecount++;
+                }
+
+                float percent = ((float) spacecount / (float) len * 100);
+                if (percent > 40) {
+                    garbage.append(tmp + "\n");
+                    tmp = "";
+                }
+            }
+
+            spacecount = 0;
+            result.append(tmp + "\n");
+        }
+
+//        String words[] = ClearSpecial.split(" ");
+//        for(String s : words)
 //        {
-//            String tmp = s.replaceAll("\\s+", " ");
-//            int spacecount = 0;
-//            int len = s.length();
-//            for(char c : s.toCharArray())
-//            {
-//                if(c == ' ')spacecount++;
+//            String tmp = s;
+//            if(s.length() == 1 && s != "a" && s.matches("[-+]?\\d+")) {
+//                garbage.append(s);
+//                tmp = "";
 //            }
-//
-//            if(len != 0) {
-//                float percent = ((float) spacecount / (float) len * 100);
-//                if (percent > 40) {
-//                    garbage.append(tmp + "\n");
-//                    tmp = "";
-//                }
-//            }
-//            spacecount = 0;
-//            result.append(tmp + "\n");
+//            result.append(tmp + " ");
 //        }
 
-        String words[] = new String(bytes).split(" ");
-        for(String s : words)
-        {
-            String tmp = s.replace("       "," ").
-                    replace("      ", " ").
-                    replace("     ", " ").
-                    replace("    ", " ").
-                    replace("   ", " ").
-                    replace("  ", " ");
-            if(s.length() == 1 && s != "a") {
-                garbage.append(s);
-                tmp = "";
-            }
-            result.append(tmp + " ");
-        }
-
         writeGarbage(garbage.toString());
+        garbage = null;
+        bytes = null;
+        text = null;
         return result.toString();
     }
 
