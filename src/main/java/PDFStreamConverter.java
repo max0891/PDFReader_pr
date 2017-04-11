@@ -31,7 +31,7 @@ public class PDFStreamConverter {
                 true
         );
 
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
         Graphics2D bufImageGraphics = bufferedImage.createGraphics();
         bufImageGraphics.drawImage(pdfimage, 0, 0, null);
 
@@ -43,6 +43,7 @@ public class PDFStreamConverter {
         pdfimage = null;
 
         Runtime.getRuntime().gc();
+        Thread.currentThread().interrupt();
 
     }
 
@@ -122,7 +123,7 @@ public class PDFStreamConverter {
                 }
 
                 float percent = ((float) spacecount / (float) len * 100);
-                if (percent > 40) {
+                if (percent > 30) {
                     garbage.append(tmp + "\n");
                     tmp = "";
                 }
