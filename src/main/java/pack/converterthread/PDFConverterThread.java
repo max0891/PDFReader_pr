@@ -21,26 +21,19 @@ public class PDFConverterThread extends Thread{
     private PDFFile pdffile = null;
     private String outImageFolder;
     private String outTextFolder;
-    private String outGarbageFolder;
     private String pdffilename;
     private BufferedWriter garbagewriter = null;
     ArrayList<Integer> unhandledPages;
     
-    public PDFConverterThread(PDFFile pdffile, String outImageFolder, String outTextFolder, String outGarbageFolder, String pdffilename)
+    public PDFConverterThread(PDFFile pdffile, String outImageFolder, String outTextFolder, String pdffilename, BufferedWriter garbagewriter)
     {
         unhandledPages = new ArrayList<Integer>();
         this.pdffile = pdffile;
         this.outImageFolder = outImageFolder;
         this.outTextFolder = outTextFolder; 
-        this.outGarbageFolder = outGarbageFolder;
         this.pdffilename = pdffilename;
-        
-    	File garbageOutText = new File(outGarbageFolder + "/Garbage.txt");
-    	try {
-			garbagewriter = new BufferedWriter(new FileWriter(garbageOutText));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        this.garbagewriter = garbagewriter;
+    	
     }
 
     @Override

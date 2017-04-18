@@ -97,9 +97,9 @@ public class PDFSplitter {
         	ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
         
 			PDFFile pdffile = new PDFFile(buf);
-			
+	    	
 			ArrayList<Thread> threads = new ArrayList<Thread>(THREADSNUM);
-            IntStream.range(0, THREADSNUM).parallel().forEach((i) -> threads.add(new PDFConverterThread(pdffile, imagesFolder, textsFolder, garbageFolder, filename)));
+            IntStream.range(0, THREADSNUM).parallel().forEach((i) -> threads.add(new PDFConverterThread(pdffile, imagesFolder, textsFolder, filename, garbagewriter)));
 
             ForkJoinPool forkJoinPool = new ForkJoinPool(THREADSNUM);
 
