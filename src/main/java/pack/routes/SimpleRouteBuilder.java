@@ -9,7 +9,7 @@ public class SimpleRouteBuilder extends RouteBuilder {
 
 	@Override
 	public void configure() throws Exception {
-		from("file:C:/inputFolder?noop=true")
+		from("file:C:/inputFolder?delete=true").routeId("pdfroute")
 //		.process(new FileLoaderProcess())
 		.bean(new PDFSplitter(), "SplitPDFbyPages")
 		.to("file:C:/outputFolder");

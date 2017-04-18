@@ -15,11 +15,16 @@ public class CamelTransfer {
 		CamelContext ctx = new DefaultCamelContext();
 		try{
 			ctx.addRoutes(rout);
-			ctx.getShutdownStrategy().setSuppressLoggingOnTimeout(true);
+			ctx.getShutdownStrategy().setTimeout(5);
+//			ctx.getShutdownStrategy().setSuppressLoggingOnTimeout(true);
 			ctx.start();
+			ctx.startRoute("pdfroute");
 		
 			Thread.sleep(100000);
-			
+			while (!ctx.getRouteStatus("pdfroute").isStopped())
+			{
+				Thread.sleep(10000);
+			}
 			ctx.stop();
 		} catch(Exception e){
 			e.printStackTrace();

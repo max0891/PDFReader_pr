@@ -124,11 +124,12 @@ public class PDFSplitter {
 		}
         
         try {
-			exchange.getContext().stop();
+			exchange.getContext().stopRoute("pdfroute");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-
+        
+        
     }
 	
 	
