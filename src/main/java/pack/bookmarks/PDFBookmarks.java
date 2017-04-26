@@ -1,6 +1,10 @@
 package pack.bookmarks;
 import com.itextpdf.text.pdf.PdfReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.itextpdf.text.pdf.SimpleBookmark;
+
+import pack.pdfsplitter.PDFSplitter;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -14,7 +18,7 @@ public class PDFBookmarks {
     private String OutFileName;
     private List<HashMap<String, Object>> bookmarks;
     private Map Pages;
-
+    private static final Logger logger = LoggerFactory.getLogger(PDFBookmarks.class);
 
 
     public PDFBookmarks(String inputFileName, String outFileName,Map<String, String> pages ) {
@@ -29,7 +33,7 @@ public class PDFBookmarks {
                 WriteBookmarksToFile(bookmarks.get(i),bw);
             bw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage(),e);
         }
 
     }
@@ -42,7 +46,7 @@ public class PDFBookmarks {
             bookmarks = SimpleBookmark.getBookmark(reader);
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage(),e);
         }
 
     }
@@ -52,7 +56,7 @@ public class PDFBookmarks {
             String number = (String) bm.get("Page");
             bw.append((String)bm.get("Title") + "   " + Pages.get(number.substring(0,number.indexOf(" "))) + '\n');
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage(),e);
         }
 
         List<HashMap<String,Object>> kids = (List<HashMap<String,Object>>)bm.get("Kids");

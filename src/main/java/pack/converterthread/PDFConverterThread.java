@@ -1,6 +1,5 @@
 package pack.converterthread;
 import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
 import pack.mongo.MongoTest;
 
 import javax.imageio.ImageIO;
@@ -11,11 +10,13 @@ import com.sun.pdfview.PDFPage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PDFConverterThread extends Thread{
+	public final int WIDTH = 2400;
+    public final int HEIGHT = 2800;
 	public static int CurrentPage = 0;
     private int curpage;
     private PDFFile pdffile = null;
@@ -24,6 +25,7 @@ public class PDFConverterThread extends Thread{
     private String pdffilename;
     private BufferedWriter garbagewriter = null;
     ArrayList<Integer> unhandledPages;
+    private static final Logger logger = LoggerFactory.getLogger(PDFConverterThread.class);
     
     public PDFConverterThread(PDFFile pdffile, String outImageFolder, String outTextFolder, String pdffilename, BufferedWriter garbagewriter)
     {
@@ -33,26 +35,21 @@ public class PDFConverterThread extends Thread{
         this.outTextFolder = outTextFolder; 
         this.pdffilename = pdffilename;
         this.garbagewriter = garbagewriter;
-    	
     }
 
     @Override
     public void run() {
-        super.run();
             BufferedImage bufferedImage = null;
             Graphics2D bufImageGraphics = null;
             Rectangle rect = null;
             Image pdfimage = null;
             try {
                 while (UpdateCurrentPage() <= pdffile.getNumPages()) {
-                    int width = 2400;
-                    int height = 2800;
-
                     rect = new Rectangle(0, 0, (int) pdffile.getPage(curpage).getBBox().getWidth(), (int) pdffile.getPage(curpage).getBBox().getHeight());
                     PDFPage page = pdffile.getPage(curpage);
 
-                    pdfimage = page.getImage(width, height, rect,null,true,true);
-                    bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+                    pdfimage = page.getImage(WIDTH, HEIGHT, rect,null,true,true);
+                    bufferedImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_BYTE_BINARY);
                     bufImageGraphics = bufferedImage.createGraphics();
                     bufferedImage.createGraphics().drawImage(pdfimage, 0, 0, null);
 
@@ -70,24 +67,17 @@ public class PDFConverterThread extends Thread{
 
                 if(unhandledPages.size() > 0)
                 {
-                    System.out.println("Handling");
-                    for(Integer i : unhandledPages) {
-                        int width = 2400;
-                        int height = 2800;
+                    for(Integer i : unhandledPages) {                        
                         rect = new Rectangle(0, 0, (int) pdffile.getPage(i).getBBox().getWidth(), (int) pdffile.getPage(i).getBBox().getHeight());
                         PDFPage page = pdffile.getPage(i);
-                        pdfimage = page.getImage(width, height, rect, null, true, true);
+                        pdfimage = page.getImage(WIDTH, HEIGHT, rect, null, true, true);
 
-
-
-                        bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+                        bufferedImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_BYTE_BINARY);
                         bufImageGraphics = bufferedImage.createGraphics();
                         bufferedImage.createGraphics().drawImage(pdfimage, 0, 0, null);
 
                         saveIamge(bufferedImage, i);
                         writeTessText(bufferedImage, i);
-                        
-                        System.out.println(i + " page is handled");
 
                         page = null;
                         pdfimage = null;
@@ -99,9 +89,9 @@ public class PDFConverterThread extends Thread{
 
                 Thread.currentThread().interrupt();
             } catch (OutOfMemoryError oome) {
-                System.out.println("image number = " + curpage + " Memory total = " + Runtime.getRuntime().totalMemory());
+                logger.error("image number = " + curpage + " Memory total = " + Runtime.getRuntime().totalMemory());
+                logger.error(oome.getMessage());
                 unhandledPages.add(curpage);
-                oome.printStackTrace();
                 run();
             }
 
@@ -115,9 +105,10 @@ public class PDFConverterThread extends Thread{
             File ImageFile = new File(imagefilename);
             ImageIO.write(image, "png", ImageFile);
             ImageFile = null;
+            logger.debug("Image " + imagefilename + " successfully saved");
 
         } catch (IOException e) {
-            e.printStackTrace();
+        	 logger.error(e.getMessage());            
         }
     }
 
@@ -138,11 +129,9 @@ public class PDFConverterThread extends Thread{
             tess = null;
 
             //new MongoTest(outtext);
-        } catch (TesseractException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {
+        	 logger.error(e.getMessage());
+        } 
     }
 
     private String formatText(String text, String filename) {
@@ -213,7 +202,7 @@ public class PDFConverterThread extends Thread{
         try {
             garbagewriter.append(text);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 

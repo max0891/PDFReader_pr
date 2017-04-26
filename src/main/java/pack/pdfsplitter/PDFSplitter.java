@@ -1,10 +1,14 @@
 package pack.pdfsplitter;
 import com.sun.pdfview.PDFFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,17 +22,29 @@ import java.util.stream.IntStream;
 
 import pack.bookmarks.PDFBookmarks;
 import pack.converterthread.PDFConverterThread;
+import pack.routes.SimpleRouteBuilder;
+import pack.routes.StopRoute;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 
-public class PDFSplitter {
+public class PDFSplitter implements Processor{
 	public static final int THREADSNUM = 8;
-	public void SplitPDFbyPages(Exchange exchange){
-
+	private static final Logger logger = LoggerFactory.getLogger(PDFSplitter.class);
+//	public void SplitPDFbyPages(Exchange exchange){
+	public void process(Exchange exchange) throws Exception{
+		
+		
+		FileInputStream fis;
+        Properties property = new Properties();
+        fis = new FileInputStream("src/main/resources/filetransfer.properties");
+        property.load(fis);
+            
 		System.out.println(exchange.getIn().getHeaders().toString());
+//		
 		String filename = exchange.getIn().getHeader("CamelFileNameOnly").toString();
 		String filePath = exchange.getIn().getHeader("CamelFileAbsolutePath").toString();
-		String outputfolder = filePath.replace("inputFolder", "outputFolder");
+		String outputfolder = filePath.replace(exchange.getIn().getHeader("CamelFileParent").toString(), property.getProperty("outputfolder"));
 		String splittedPagesFolder = outputfolder.replace(".pdf","/SplittedPages");
 		String bookmarksFolder = outputfolder.replace(".pdf", "/Bookmarks");
 		String imagesFolder = outputfolder.replace(".pdf", "/Images");
@@ -56,7 +72,7 @@ public class PDFSplitter {
         
 		PdfReader reader = null;
 		
-        Map map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<String,String>();
         try {
             reader = new PdfReader(filePath);
             int n = reader.getNumberOfPages();
@@ -80,7 +96,7 @@ public class PDFSplitter {
             reader.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage(),e);
         }
         Pages = new HashMap<String, String>(map);
         map.clear();
@@ -97,7 +113,7 @@ public class PDFSplitter {
         	ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
         
 			PDFFile pdffile = new PDFFile(buf);
-	    	
+		
 			ArrayList<Thread> threads = new ArrayList<Thread>(THREADSNUM);
             IntStream.range(0, THREADSNUM).parallel().forEach((i) -> threads.add(new PDFConverterThread(pdffile, imagesFolder, textsFolder, filename, garbagewriter)));
 
@@ -113,23 +129,30 @@ public class PDFSplitter {
                         }
                     })).get();
 
-            garbagewriter.close();
+            garbagewriter.close();            
+            channel.close();
+            raf.close();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		} catch (ExecutionException e1) {
-			e1.printStackTrace();
+			logger.error(e.getMessage(),e);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(),e);
+		} catch (ExecutionException e) {
+			logger.error(e.getMessage(),e);
 		}
+		System.out.println("SPLITTER DONE");
         
-        try {
-			exchange.getContext().stopRoute("pdfroute");
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-        
-        
+//        try {
+//			exchange.getContext().stopRoute(SimpleRouteBuilder.routeID);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} 
+//        StopRoute stopRoute = new StopRoute(SimpleRouteBuilder.mainrouteID);
+//        try {
+//			stopRoute.stopRoute(exchange);
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(),e);
+//		}
     }
 	
 	
