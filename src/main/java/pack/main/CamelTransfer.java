@@ -26,18 +26,20 @@ public class CamelTransfer {
 		
 			
 		try{
-//			ProducerTemplate prod = camelContext.createProducerTemplate();
-			
 			camelContext.addRoutes(rout);
 			camelContext.start();
 			camelContext.startAllRoutes();
-			camelContext.getShutdownStrategy().setTimeout(2);
-			
+			camelContext.getShutdownStrategy().setTimeout(2);			
 
 			Thread.sleep(10000);
 			while (!camelContext.getRouteStatus(rout.mainrouteID).isStopped()) {
 				Thread.sleep(10000);				
 			}
+//			
+		
+			
+			camelContext.stop();
+
 
 		} catch(Exception e){
 			logger.error(e.getMessage(),e);

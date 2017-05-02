@@ -27,14 +27,11 @@ public class StopRoute  {
     public StopRoute() {} 
 
     public void stopRoute(final Exchange exchange) throws Exception { 
-            final CamelContext camelContext = exchange.getContext();
-            
-            System.out.println("STOPPING ROUTE");
+            final CamelContext camelContext = exchange.getContext();            
               camelContext.getInflightRepository().remove(exchange);        
               camelContext.getShutdownStrategy().setTimeout(2);
               camelContext.stopRoute(routeId);
-//              camelContext.removeRouteDefinitions(routeId)
-              camelContext.stop();
+              
             }	
     }
 

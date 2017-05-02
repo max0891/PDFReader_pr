@@ -4,7 +4,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +31,11 @@ public class SimpleRouteBuilder extends RouteBuilder {
             property.load(fis);
             from(property.getProperty("source") + property.getProperty("inputfolder") + property.getProperty("inOptions"))
 			.routeId(mainrouteID)
+			.bean(new PDFSplitter(),"SplitPDFbyPages")
 			.onCompletion().bean(new StopRoute(mainrouteID)).to(property.getProperty("source") + property.getProperty("outputfolder")).end()
-			.process(new PDFSplitter())			
 			.to(property.getProperty("source") + property.getProperty("outputfolder"));
+            
+       
             
         }catch (IOException e) {
         	logger.error(e.getMessage(),e);

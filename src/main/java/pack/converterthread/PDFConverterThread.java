@@ -128,7 +128,7 @@ public class PDFConverterThread extends Thread{
             bw = null;
             tess = null;
 
-            //new MongoTest(outtext);
+            new MongoTest(outtext);
         } catch (Exception e) {
         	 logger.error(e.getMessage());
         } 

@@ -28,20 +28,19 @@ import pack.routes.StopRoute;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-public class PDFSplitter implements Processor{
+public class PDFSplitter{
 	public static final int THREADSNUM = 8;
 	private static final Logger logger = LoggerFactory.getLogger(PDFSplitter.class);
-//	public void SplitPDFbyPages(Exchange exchange){
-	public void process(Exchange exchange) throws Exception{
+	public void SplitPDFbyPages(Exchange exchange) throws Exception{
+//	public void process(Exchange exchange) throws Exception{
 		
 		
 		FileInputStream fis;
         Properties property = new Properties();
+        
         fis = new FileInputStream("src/main/resources/filetransfer.properties");
         property.load(fis);
-            
-		System.out.println(exchange.getIn().getHeaders().toString());
-//		
+	
 		String filename = exchange.getIn().getHeader("CamelFileNameOnly").toString();
 		String filePath = exchange.getIn().getHeader("CamelFileAbsolutePath").toString();
 		String outputfolder = filePath.replace(exchange.getIn().getHeader("CamelFileParent").toString(), property.getProperty("outputfolder"));
@@ -69,7 +68,7 @@ public class PDFSplitter implements Processor{
         File GarbageFolder = new File(garbageFolder);
         if(!GarbageFolder.exists())
         	GarbageFolder.mkdir();
-        
+        fis.close();
 		PdfReader reader = null;
 		
         Map<String, String> map = new HashMap<String,String>();
@@ -128,7 +127,9 @@ public class PDFSplitter implements Processor{
                             e.printStackTrace();
                         }
                     })).get();
+            forkJoinPool = null;
 
+            threads.clear();
             garbagewriter.close();            
             channel.close();
             raf.close();
@@ -140,19 +141,7 @@ public class PDFSplitter implements Processor{
 		} catch (ExecutionException e) {
 			logger.error(e.getMessage(),e);
 		}
-		System.out.println("SPLITTER DONE");
-        
-//        try {
-//			exchange.getContext().stopRoute(SimpleRouteBuilder.routeID);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} 
-//        StopRoute stopRoute = new StopRoute(SimpleRouteBuilder.mainrouteID);
-//        try {
-//			stopRoute.stopRoute(exchange);
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(),e);
-//		}
+
     }
 	
 	
